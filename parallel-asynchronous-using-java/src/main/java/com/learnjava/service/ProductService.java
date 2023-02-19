@@ -15,18 +15,29 @@ public class ProductService {
         this.reviewService = reviewService;
     }
 
-    public Product retrieveProductDetails(String productId) {
+    public Product retrieveProductDetails(String productId) throws InterruptedException {
         stopWatch.start();
+        ProductoInfoRunnable productInforunnable = new ProductoInfoRunnable(productId);
+        Thread productInfoThread = new Thread(productInforunnable);
 
-        ProductInfo productInfo = productInfoService.retrieveProductInfo(productId); // blocking call
-        Review review = reviewService.retrieveReviews(productId); // blocking call
+        ReviewRunable reviewRunnable = new ReviewRunable(productId);
+        Thread reviewThread = new Thread(reviewRunnable);
+
+        productInfoThread.start();
+        reviewThread.start();
+
+        productInfoThread.join();
+        reviewThread.join();
+
+        ProductInfo productInfo = productInforunnable.getProductInfo();
+        Review review = reviewRunnable.getReview();
 
         stopWatch.stop();
         log("Total Time Taken : "+ stopWatch.getTime());
         return new Product(productId, productInfo, review);
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
 
         ProductInfoService productInfoService = new ProductInfoService();
         ReviewService reviewService = new ReviewService();
@@ -35,5 +46,44 @@ public class ProductService {
         Product product = productService.retrieveProductDetails(productId);
         log("Product is " + product);
 
+    }
+
+    private class ProductoInfoRunnable implements Runnable {
+
+        private ProductInfo productInfo;
+        private String productId;
+
+        public ProductoInfoRunnable(String productId) {
+            this.productId = productId;
+        }
+
+        public ProductInfo getProductInfo() {
+            return productInfo;
+        }
+
+        @Override
+        public void run() {
+            this. productInfo = productInfoService.retrieveProductInfo(productId);
+        }
+    }
+
+    private class ReviewRunable implements Runnable {
+
+        private String productId;
+
+        private Review review;
+
+        public ReviewRunable(String productId) {
+            this.productId = productId;
+        }
+
+        public Review getReview() {
+            return this.review;
+        }
+
+        @Override
+        public void run() {
+            this.review = reviewService.retrieveReviews(productId);
+        }
     }
 }
