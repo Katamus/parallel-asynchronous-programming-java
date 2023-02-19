@@ -17,20 +17,9 @@ public class ProductService {
 
     public Product retrieveProductDetails(String productId) throws InterruptedException {
         stopWatch.start();
-        ProductoInfoRunnable productInforunnable = new ProductoInfoRunnable(productId);
-        Thread productInfoThread = new Thread(productInforunnable);
 
-        ReviewRunable reviewRunnable = new ReviewRunable(productId);
-        Thread reviewThread = new Thread(reviewRunnable);
-
-        productInfoThread.start();
-        reviewThread.start();
-
-        productInfoThread.join();
-        reviewThread.join();
-
-        ProductInfo productInfo = productInforunnable.getProductInfo();
-        Review review = reviewRunnable.getReview();
+        ProductInfo productInfo = this.productInfoService.retrieveProductInfo(productId);
+        Review review = this.reviewService.retrieveReviews(productId);
 
         stopWatch.stop();
         log("Total Time Taken : "+ stopWatch.getTime());
@@ -48,42 +37,4 @@ public class ProductService {
 
     }
 
-    private class ProductoInfoRunnable implements Runnable {
-
-        private ProductInfo productInfo;
-        private String productId;
-
-        public ProductoInfoRunnable(String productId) {
-            this.productId = productId;
-        }
-
-        public ProductInfo getProductInfo() {
-            return productInfo;
-        }
-
-        @Override
-        public void run() {
-            this. productInfo = productInfoService.retrieveProductInfo(productId);
-        }
-    }
-
-    private class ReviewRunable implements Runnable {
-
-        private String productId;
-
-        private Review review;
-
-        public ReviewRunable(String productId) {
-            this.productId = productId;
-        }
-
-        public Review getReview() {
-            return this.review;
-        }
-
-        @Override
-        public void run() {
-            this.review = reviewService.retrieveReviews(productId);
-        }
-    }
 }
