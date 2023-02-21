@@ -7,6 +7,14 @@ import static com.learnjava.util.LoggerUtil.log;
 
 public class CompletableFutureHelloWorld {
 
+    HelloWorldService hws = new HelloWorldService();
+
+    public CompletableFuture<String> helloWorld(){
+        return CompletableFuture.supplyAsync(hws::helloWorld)
+                .thenApply(String::toUpperCase);
+    }
+
+
     public static void main(String[] args) {
         HelloWorldService helloWorldService = new HelloWorldService();
 
