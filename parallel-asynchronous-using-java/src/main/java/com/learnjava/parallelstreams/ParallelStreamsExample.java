@@ -31,14 +31,18 @@ public class ParallelStreamsExample {
                 .collect(Collectors.toList());
     }
 
+    public static List<String> string_toLowerCase(List<String> nameList){
+
+        return nameList
+                .parallelStream()
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+    }
+
 
     public static void main(String[] args) {
         List<String> nameList =  DataSet.namesList();
-        ParallelStreamsExample parallelStreamsExample = new ParallelStreamsExample();
-        startTimer();
-        List<String> resultList = parallelStreamsExample.stringTransform(nameList);
-        log("ResultList : "+ resultList);
-        timeTaken();
+        string_toLowerCase(nameList);
     }
 
     private String addNameLengthTransform(String name) {
