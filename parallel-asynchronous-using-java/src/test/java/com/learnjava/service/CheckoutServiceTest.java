@@ -30,11 +30,21 @@ class CheckoutServiceTest {
     void checkout_13_items(){
         //given
 
-        Cart cart = DataSet.createCart(25);
+        Cart cart = DataSet.createCart(13);
 
         //when
         CheckoutResponse checkoutResponse = checkoutService.checkout(cart);
 
+        //then
+        assertEquals(CheckoutStatus.FAILURE,checkoutResponse.getCheckoutStatus());
+    }
+
+    @Test
+    void checkout_25_items(){
+        //given
+        Cart cart = DataSet.createCart(25);
+        //when
+        CheckoutResponse checkoutResponse = checkoutService.checkout(cart);
         //then
         assertEquals(CheckoutStatus.FAILURE,checkoutResponse.getCheckoutStatus());
     }
