@@ -6,12 +6,24 @@ import com.learnjava.domain.checkout.CheckoutStatus;
 import com.learnjava.util.DataSet;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.ForkJoinPool;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CheckoutServiceTest {
 
     PriceValidatorService priceValidatorService = new PriceValidatorService();
     CheckoutService checkoutService = new CheckoutService(priceValidatorService);
+
+    @Test
+    void no_Of_cores(){
+        System.out.println("no of cores :"+ Runtime.getRuntime().availableProcessors());
+    }
+
+    @Test
+    void parallelism(){
+        System.out.println("parallelism :"+ ForkJoinPool.getCommonPoolParallelism());
+    }
 
     @Test
     void checkout_6_items(){
