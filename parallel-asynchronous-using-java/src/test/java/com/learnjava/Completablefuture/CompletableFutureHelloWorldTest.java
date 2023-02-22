@@ -3,6 +3,10 @@ package com.learnjava.Completablefuture;
 import com.learnjava.service.HelloWorldService;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.CompletableFuture;
+
+import static com.learnjava.util.CommonUtil.startTimer;
+import static com.learnjava.util.CommonUtil.timeTaken;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CompletableFutureHelloWorldTest {
@@ -40,5 +44,33 @@ class CompletableFutureHelloWorldTest {
         assertEquals("HELLO WORLD! HI COMPLETABLEFUTURE",helloWorld);
 
 
+    }
+
+    @Test
+    void helloWorld_4_async_calls() {
+
+        //give
+
+        //when
+        String helloWorld = cfhw.helloWorld_4_async_calls();
+
+        //then
+        assertEquals("HELLO WORLD! HI COMPLETABLEFUTURE BYE!",helloWorld);
+
+    }
+
+    @Test
+    void helloWorld_theCompose() {
+        //give
+        startTimer();
+        //when
+        CompletableFuture<String> completableFuture = cfhw.helloWorld_theCompose();
+
+        //then
+        completableFuture.thenAccept(s->{
+            assertEquals("HELLO WORLD!",s);
+        });
+
+        timeTaken();
     }
 }
