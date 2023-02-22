@@ -42,6 +42,20 @@ import static com.learnjava.util.LoggerUtil.log;
          return product;
      }
 
+     public CompletableFuture<Product> retrieveProductDetails_approach2(String productId)  {
+
+         CompletableFuture<ProductInfo> cfProductoInfo = CompletableFuture.supplyAsync(
+                 () -> productInfoService.retrieveProductInfo(productId)
+         );
+
+         CompletableFuture<Review> cfReview = CompletableFuture.supplyAsync(
+                 () -> this.reviewService.retrieveReviews(productId)
+         );
+
+         return cfProductoInfo.thenCombine(cfReview, (productInfo, review) -> new Product(productId, productInfo, review));
+
+     }
+
      public static void main(String[] args) throws InterruptedException {
 
          ProductInfoService productInfoService = new ProductInfoService();

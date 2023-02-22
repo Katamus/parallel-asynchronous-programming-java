@@ -27,4 +27,5 @@ class ProductServiceUsingCompletableFutureTest {
         assertTrue(product.getProductInfo().getProductOptions().size() > 0);
         assertNotNull(product.getReview());
     }
+    
 }
