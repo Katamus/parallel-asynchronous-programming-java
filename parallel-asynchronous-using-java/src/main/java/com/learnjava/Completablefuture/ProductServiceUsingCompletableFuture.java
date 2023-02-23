@@ -136,6 +136,9 @@ import static com.learnjava.util.LoggerUtil.log;
 
          Product product = cfProductInfo
                  .thenCombine(cfReview, (productInfo, review) -> new Product(productId, productInfo, review))
+                 .whenComplete((product1,throwable)->{
+                     log("Inside whenComplete: "+productId+"and the exception is "+ throwable);
+                 })
                  .join(); //block the thread
 
          stopWatch.stop();
