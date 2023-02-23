@@ -29,13 +29,20 @@ public class CompletableFutureHelloWorldException {
 
         String hw = hello
                 .handle((res,e)->{
-                    log("Exception is :"+ e.getMessage());
-                    return "";
+                    if(e != null){
+                        log("Exception is :"+ e.getMessage());
+                        return "";
+                    }
+                    return res;
                 })
                 .thenCombine(world, (h,w)->h+w)
                 .handle((res,e)->{
-                    log("Exception after world is :"+ e.getMessage());
-                    return "";
+                    if(e != null){
+                        log("Exception after world is :"+ e.getMessage());
+                        return "";
+                    }
+                    return res;
+
                 })
                 .thenCombine(hiCompletableFuture, (previos,current)->previos + current)
                 .thenApply(String::toUpperCase)

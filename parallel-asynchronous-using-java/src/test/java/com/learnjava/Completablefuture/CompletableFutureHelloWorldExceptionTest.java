@@ -43,4 +43,16 @@ class CompletableFutureHelloWorldExceptionTest {
         assertEquals(" HI COMPLETABLEFUTURE",result);
 
     }
+
+    @Test
+    void helloworld_3_async_calls_handle_3() {
+
+        when(helloWorldService.hello()).thenCallRealMethod();
+        when(helloWorldService.world()).thenCallRealMethod();
+
+        String result = hwcfe.helloworld_3_async_calls_handle();
+
+        assertEquals("HELLO WORLD! HI COMPLETABLEFUTURE",result);
+
+    }
 }
