@@ -53,6 +53,41 @@ public class CompletableFutureHelloWorldException {
         return hw;
     }
 
+    public String helloworld_3_async_calls_whenhandle(){
+        startTimer();
+        CompletableFuture<String> hello = CompletableFuture.supplyAsync(()->hws.hello());
+        CompletableFuture<String> world = CompletableFuture.supplyAsync(() -> hws.world());
+
+        CompletableFuture<String> hiCompletableFuture = CompletableFuture.supplyAsync(() -> {
+            delay(1000);
+            return " Hi CompletableFuture";
+        });
+
+        String hw = hello
+                .whenComplete((res,e)->{
+                    log("error"+e.getMessage());
+                    if(e != null){
+                        log("Exception is :"+ e.getMessage());
+                    }
+                })
+                .thenCombine(world, (h,w)->h+w)
+                .exceptionally( e ->{
+
+                    if(e != null){
+                        log("error 2"+e.getMessage());
+                        log("Exception after world is :"+ e.getMessage());
+                    }
+                    return "";
+                })
+                .thenCombine(hiCompletableFuture, (previos,current)->previos + current)
+                .thenApply(String::toUpperCase)
+                .join();
+
+        timeTaken();
+
+        return hw;
+    }
+
     public String helloworld_3_async_calls_exceptionally(){
         startTimer();
         CompletableFuture<String> hello = CompletableFuture.supplyAsync(()->hws.hello());
