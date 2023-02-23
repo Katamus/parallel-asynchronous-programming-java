@@ -88,35 +88,37 @@ import static com.learnjava.util.LoggerUtil.log;
      }
 
      private List<ProductOption> updateInventory(ProductInfo productInfo) {
-         List<ProductOption> productOptionLists = productInfo.getProductOptions()
+         List<ProductOption> productOptionList = productInfo.getProductOptions()
                  .stream()
                  .map(productOption -> {
-                     Inventory inventory = inventoryService.addInventory(productOption);
+                     Inventory inventory = inventoryService.retrieveInventory(productOption);
                      productOption.setInventory(inventory);
                      return productOption;
                  })
                  .collect(Collectors.toList());
-         return productOptionLists;
+         return productOptionList;
      }
 
      private List<ProductOption> updateInventory_approach2(ProductInfo productInfo) {
-         List<CompletableFuture<ProductOption>> productOptionLists = productInfo.getProductOptions()
+         List<CompletableFuture<ProductOption>> productOptionList = productInfo.getProductOptions()
                  .stream()
                  .map(productOption -> {
-                     return CompletableFuture.supplyAsync(()->inventoryService.addInventory(productOption))
+                     return CompletableFuture.supplyAsync(() -> inventoryService.retrieveInventory(productOption))
                              .thenApply(inventory -> {
                                  productOption.setInventory(inventory);
                                  return productOption;
                              });
-                 }).collect(Collectors.toList());
-         return productOptionLists.stream().map(CompletableFuture::join).collect(Collectors.toList());
+                 })
+                 .collect(Collectors.toList());
+
+         return productOptionList.stream().map(CompletableFuture::join).collect(Collectors.toList());
      }
 
      public Product retrieveProductDetailsWithInventory_approach2(String productId) {
          stopWatch.start();
 
          CompletableFuture<ProductInfo> cfProductInfo = CompletableFuture
-                 .supplyAsync(()-> productInfoService.retrieveProductInfo(productId))
+                 .supplyAsync(() -> productInfoService.retrieveProductInfo(productId))
                  .thenApply(productInfo -> {
                      productInfo.setProductOptions(updateInventory_approach2(productInfo));
                      return productInfo;
@@ -124,14 +126,20 @@ import static com.learnjava.util.LoggerUtil.log;
 
 
          CompletableFuture<Review> cfReview = CompletableFuture
-                 .supplyAsync(()-> reviewService.retrieveReviews(productId));
+                 .supplyAsync(() -> reviewService.retrieveReviews(productId))
+                 .exceptionally((e) -> {
+                     log("Handled the Exception in reviewService : " + e.getMessage());
+                     return Review.builder()
+                             .noOfReviews(0).overallRating(0.0)
+                             .build();
+                 });
 
          Product product = cfProductInfo
-                 .thenCombine(cfReview, (productInfo,review)->new Product(productId, productInfo, review))
+                 .thenCombine(cfReview, (productInfo, review) -> new Product(productId, productInfo, review))
                  .join(); //block the thread
 
          stopWatch.stop();
-         log("Total Time Taken : "+ stopWatch.getTime());
+         log("Total Time Taken : " + stopWatch.getTime());
          return product;
      }
 
