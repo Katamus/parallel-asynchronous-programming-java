@@ -99,6 +99,42 @@ import static com.learnjava.util.LoggerUtil.log;
          return productOptionLists;
      }
 
+     private List<ProductOption> updateInventory_approach2(ProductInfo productInfo) {
+         List<CompletableFuture<ProductOption>> productOptionLists = productInfo.getProductOptions()
+                 .stream()
+                 .map(productOption -> {
+                     return CompletableFuture.supplyAsync(()->inventoryService.addInventory(productOption))
+                             .thenApply(inventory -> {
+                                 productOption.setInventory(inventory);
+                                 return productOption;
+                             });
+                 }).collect(Collectors.toList());
+         return productOptionLists.stream().map(CompletableFuture::join).collect(Collectors.toList());
+     }
+
+     public Product retrieveProductDetailsWithInventory_approach2(String productId) {
+         stopWatch.start();
+
+         CompletableFuture<ProductInfo> cfProductInfo = CompletableFuture
+                 .supplyAsync(()-> productInfoService.retrieveProductInfo(productId))
+                 .thenApply(productInfo -> {
+                     productInfo.setProductOptions(updateInventory_approach2(productInfo));
+                     return productInfo;
+                 });
+
+
+         CompletableFuture<Review> cfReview = CompletableFuture
+                 .supplyAsync(()-> reviewService.retrieveReviews(productId));
+
+         Product product = cfProductInfo
+                 .thenCombine(cfReview, (productInfo,review)->new Product(productId, productInfo, review))
+                 .join(); //block the thread
+
+         stopWatch.stop();
+         log("Total Time Taken : "+ stopWatch.getTime());
+         return product;
+     }
+
 
      public static void main(String[] args) throws InterruptedException {
 
