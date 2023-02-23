@@ -5,6 +5,7 @@ import com.learnjava.service.InventoryService;
 import com.learnjava.service.ProductInfoService;
 import com.learnjava.service.ProductService;
 import com.learnjava.service.ReviewService;
+import lombok.extern.java.Log;
 
 import java.util.List;
 import java.util.concurrent.*;
@@ -104,10 +105,15 @@ import static com.learnjava.util.LoggerUtil.log;
                  .stream()
                  .map(productOption -> {
                      return CompletableFuture.supplyAsync(() -> inventoryService.retrieveInventory(productOption))
+                             .exceptionally(throwable -> {
+                                 log("Error Inventory " + throwable.getMessage());
+                                 return Inventory.builder().count(1).build();
+                             })
                              .thenApply(inventory -> {
                                  productOption.setInventory(inventory);
                                  return productOption;
-                             });
+                             })
+                             ;
                  })
                  .collect(Collectors.toList());
 
