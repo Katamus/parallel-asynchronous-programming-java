@@ -64,6 +64,20 @@ public class MoviesClient {
 
     }
 
+    public List<Movie> retrieveMovieList_CF_allof(List<Long> movieInfoId){
+
+        var movieFutures = movieInfoId
+                .stream()
+                .map(this::retrieveMovie_CF)
+                .collect(Collectors.toList());
+
+
+        CompletableFuture<Void> cfAllOf = CompletableFuture.allOf(movieFutures.toArray(new CompletableFuture[movieFutures.size()]));
+
+        return cfAllOf.thenApply(v -> movieFutures.stream().map(CompletableFuture::join).collect(Collectors.toList())).join();
+
+    }
+
     private List<Review> invokeReviewsService(Long movieInfoId) {
 
         var reviewUri = UriComponentsBuilder.fromUriString("/v1/reviews")
