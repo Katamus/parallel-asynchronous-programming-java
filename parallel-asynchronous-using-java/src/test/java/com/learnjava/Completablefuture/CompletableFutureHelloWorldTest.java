@@ -122,6 +122,9 @@ class CompletableFutureHelloWorldTest {
     }
 
 
-
+    @Test
+    void anyOf() {
+        assertEquals("hello world", cfhw.anyOf());
+    }
 
 }
