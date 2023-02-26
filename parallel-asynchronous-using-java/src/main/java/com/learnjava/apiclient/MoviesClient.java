@@ -51,7 +51,8 @@ public class MoviesClient {
         var moviesInfoUrlPath = "/v1/movie_infos/{movieInfoId}";
         return webClient
                 .get()
-                .uri(moviesInfoUrlPath)
+                .uri(moviesInfoUrlPath,movieInfoId)
+
                 .retrieve()
                 .bodyToMono(MovieInfo.class)
                 .block();
